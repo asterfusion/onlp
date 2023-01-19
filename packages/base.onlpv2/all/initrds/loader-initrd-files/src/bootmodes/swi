@@ -1,0 +1,25 @@
+############################################################
+#
+# Bootmode: SWI
+#
+# Boot a SWI URL from the SWI BOOTPARAM value.
+#
+############################################################
+. /lib/msgs
+. /etc/onl/BOOTPARAMS
+
+if [ ! "${SWI}" ]; then
+   msg_error "No SWI specified in the boot configuration. SWI booting cannot continue."
+   # Do not continue the autoboot sequence, nothing can be resolved automatically here.
+   exit 200
+fi
+
+#
+# The SWI setting can be a list of URLs
+#
+for url in $SWI; do
+    msg_info "Trying ${url}..."
+    timeout -t 180 boot "${url}" && exit 0
+done
+
+exit 1

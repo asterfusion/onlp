@@ -1,0 +1,164 @@
+#!/bin/sh
+############################################################
+# <bsn.cl fy=2013 v=onl>
+#
+#        Copyright 2013, 2014 BigSwitch Networks, Inc.
+#
+# Licensed under the Eclipse Public License, Version 1.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+#        http://www.eclipse.org/legal/epl-v10.html
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied. See the License for the specific
+# language governing permissions and limitations under the
+# License.
+#
+# </bsn.cl>
+############################################################
+#
+# sysinit
+#
+# Busybox sysinit script.
+#
+############################################################
+
+# Suppress console output until baud rate is set
+exec 4>&1 1>/tmp/sysinit.out 2>&1
+restoreconsole() { cat /tmp/sysinit.out 1>&4; exec 1>&4 2>&4; >/tmp/sysinit.out; }
+trap "restoreconsole; reboot -f" EXIT
+
+
+# Mount special filesystems
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+if [ -d /sys/firmware/efi/efivars ]; then
+    modprobe efivarfs || :
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+fi
+mount -o remount,size=1M /dev
+case "$(stat -f -c "%T" /tmp)" in
+  tmpfs|ramfs) ;;
+  *)
+    mount -t tmpfs tmpfs /tmp
+    ;;
+esac
+
+# Initialize RNG early
+python /bin/initrng.py
+
+# Grab cmdline settings
+touch /etc/onl/boot-config
+tr -s " " "\n" </proc/cmdline |
+while read -r l; do
+    n=${l%%=*}
+    [ "$l" = "${l#*=}" ] && v= || v="${l#*=}"
+    case $n in
+	onl_*)
+            filename="$(echo $n | sed s/^onl_//)"
+	    echo "$v" > "/etc/onl/$filename"
+	    ;;
+    esac
+done
+
+# Populate platform-specific settings
+. /lib/platform-detect
+
+if [ ! -f /etc/onl/abort ]; then
+
+    # Tell kernel to invoke mdev when devices are added or removed
+    echo /sbin/mdev >/proc/sys/kernel/hotplug
+
+    # Initialize net devices
+    ( cd /sys/class/net; for d in *; do initnetdev $d add; done )
+
+    # FS Checks
+    onl-mounts fsck all
+
+    # Mounts
+    onl-mounts -q mount all
+
+    # Initialize U-Boot environment
+    if [ -s /proc/device-tree/model ]; then
+        initubootenv
+    fi
+
+    if [ -f /etc/issue ]; then
+        cat /etc/issue
+    fi
+
+    if [ -f /mnt/onl/boot/boot-config ]; then
+        # Use local boot-config.
+        cp /mnt/onl/boot/boot-config /etc/onl/boot-config
+    elif [ -f /etc/onl/boot-config-default ]; then
+        # Use default boot-config.
+        cp /etc/onl/boot-config-default /etc/onl/boot-config
+        cp /etc/onl/boot-config-default /mnt/onl/boot/boot-config
+    fi
+fi
+
+
+#
+# Initialize PKI
+#
+ONL_PKI=/usr/bin/onl-pki
+if [ -f "$ONL_PKI" ]; then
+    "$ONL_PKI" --init
+fi
+
+#
+# Custom sysinit hooks
+#
+if [ -d "/etc/sysinit.d" ]; then
+    for s in `ls /etc/sysinit.d/* | sort`; do
+        if [ -x "$s" ]; then
+            "$s"
+        fi
+    done
+fi
+
+# Parse settings
+touch /etc/onl/SWI /etc/onl/CONSOLESPEED /etc/onl/PASSWORD /etc/onl/NET /etc/onl/BOOTMODE /etc/onl/BOOTPARAMS
+while read -r l; do
+    n=${l%%=*}
+    [ "$l" = "${l#*=}" ] && v= || v="${l#*=}"
+    case $n in
+	CONSOLESPEED)
+	    echo "$v" >/etc/onl/CONSOLESPEED
+	    ;;
+	PASSWORD)
+	    echo "$v" >/etc/onl/PASSWORD
+	    ;;
+	NET*)
+	    echo "$l" >>/etc/onl/NET
+	    ;;
+        BOOTMODE)
+            echo "$v" >/etc/onl/BOOTMODE
+            ;;
+        *)
+            if [ -n "$n" ]; then
+                echo "$n=$v" >> /etc/onl/BOOTPARAMS
+            fi
+            ;;
+    esac
+done </etc/onl/boot-config
+
+# Set console baud rate and restore output
+CONSOLESPEED=$(cat /etc/onl/CONSOLESPEED)
+if [ "${CONSOLESPEED}" ]; then
+    stty ${CONSOLESPEED}
+fi
+stty sane pass8 -ixon -cstopb
+restoreconsole
+
+# By this point PASSWORD must be set in /etc/onl/PASSWORD so /bin/login
+# can authenticate the user
+trap - EXIT
+
+# Local variables:
+# sh-basic-offset: 4
+# sh-indentation: 4
+# End:

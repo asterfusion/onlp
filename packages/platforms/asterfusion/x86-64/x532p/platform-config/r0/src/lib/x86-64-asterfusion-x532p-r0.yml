@@ -1,0 +1,30 @@
+---
+
+######################################################################
+#
+# platform-config for x86-64-asterfusion-x532p
+#
+######################################################################
+
+x86-64-asterfusion-x532p-r0:
+
+  grub:
+
+    serial: >-
+      --port=0x2f8
+      --speed=115200
+      --word=8
+      --parity=no
+      --stop=1
+
+    kernel:
+      <<: *kernel-4-14
+
+    args: >-
+      console=ttyS0,115200n8 iommu=pt intel_iommu=on pcie_aspm=off pci=noaer
+
+  ##network
+  ##  interfaces:
+  ##    ma1:
+  ##      name: ~
+  ##      syspath: pci0000:00/0000:00:03.0

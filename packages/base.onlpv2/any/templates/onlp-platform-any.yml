@@ -1,0 +1,9 @@
+############################################################
+#
+# ONLP Platform Package Template
+#
+# Requires: PLATFORM, ARCH
+# Assumes revision r0
+#
+############################################################
+!include $ONL/packages/base/any/templates/onlp-platform-revision.yml REVISION=r0
