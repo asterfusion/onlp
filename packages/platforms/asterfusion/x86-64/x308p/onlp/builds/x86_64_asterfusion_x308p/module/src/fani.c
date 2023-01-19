@@ -29,13 +29,21 @@
 #include <onlplib/i2c.h>
 #include "platform_lib.h"
 
+#define VALIDATE(_id)                           \
+    do {                                        \
+        if(!ONLP_OID_IS_FAN(_id)) {             \
+            return ONLP_STATUS_E_INVALID;       \
+        }                                       \
+    } while(0)
+
+#define MAX_FAN_SPEED 18500
+
 onlp_fan_info_t fan_info[] = {
     { }, /* Not used */
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN1), "FANTRAY 1", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        //ONLP_FAN_CAPS_SET_RPM | ONLP_FAN_CAPS_GET_RPM,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -44,8 +52,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN2), "FANTRAY 2", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -54,8 +62,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN3), "FANTRAY 3", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -64,8 +72,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN4), "FANTRAY 4", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -74,8 +82,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN5), "FANTRAY 5", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -84,8 +92,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN6), "FANTRAY 6", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -94,8 +102,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN7), "FANTRAY 7", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -104,8 +112,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN8), "FANTRAY 8", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -114,8 +122,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN9), "FANTRAY 9", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -124,8 +132,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN10), "FANTRAY 10", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -134,8 +142,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN11), "FANTRAY 11", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -144,8 +152,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN12), "FANTRAY 12", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -154,8 +162,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_PSU1), "FAN for PSU 1", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -164,8 +172,8 @@ onlp_fan_info_t fan_info[] = {
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_PSU1), "FAN for PSU 2", 0, { 0, }},
-        ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        0x0,
+        ONLP_FAN_CAPS_F2B | ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -203,8 +211,10 @@ onlp_fani_rpm_set(onlp_oid_t id, int rpm)
 int
 onlp_fani_percentage_set(onlp_oid_t id, int percentage)
 {
-    int  fid, perc_val = 0, rc;
-    fid = ONLP_OID_ID_GET(id);
+    int  fan_id, perc_val = 0;
+
+    VALIDATE(id);
+    fan_id = ONLP_OID_ID_GET(id);
 
     /* Set fan speed 
        Driver accept value in range between 128 and 255.
@@ -223,62 +233,20 @@ onlp_fani_percentage_set(onlp_oid_t id, int percentage)
             perc_val = percentage/10;
     }
     
-    switch (fid)
-	{
-        case FAN_ID_FAN1:    
-        case FAN_ID_FAN2:
-        case FAN_ID_FAN3:
-        case FAN_ID_FAN4:
-        case FAN_ID_FAN5:    
-        case FAN_ID_FAN6:
-        case FAN_ID_FAN7:
-        case FAN_ID_FAN8:
-        case FAN_ID_FAN9:
-        case FAN_ID_FAN10:
-        case FAN_ID_FAN11:
-        case FAN_ID_FAN12:
-        case FAN_ID_PSU1:
-        case FAN_ID_PSU2:
-			rc = onlp_fani_rpm_set(id, perc_val);
-            break;
-        default:
-            return ONLP_STATUS_E_INVALID;
-    }
-	return rc;   
+	return onlp_fani_rpm_set(fan_id, perc_val);
 }
 
 int
 onlp_fani_info_get(onlp_oid_t id, onlp_fan_info_t* info)
 {
-    int fan_id ,rc;
-    
-    fan_id = ONLP_OID_ID_GET(id);
-    *info = fan_info[fan_id];
-    info->caps |= ONLP_FAN_CAPS_GET_RPM;
-       
-    switch (fan_id) {
-        case FAN_ID_FAN1:    
-        case FAN_ID_FAN2:
-        case FAN_ID_FAN3:
-        case FAN_ID_FAN4:
-        case FAN_ID_FAN5:    
-        case FAN_ID_FAN6:
-        case FAN_ID_FAN7:
-        case FAN_ID_FAN8:
-        case FAN_ID_FAN9:
-        case FAN_ID_FAN10:
-        case FAN_ID_FAN11:
-        case FAN_ID_FAN12:
-        case FAN_ID_PSU1:
-        case FAN_ID_PSU2:
-            rc = pltfm_fan_info_get(info, fan_id);
-            break;
-        default:            
-            return ONLP_STATUS_E_INTERNAL;
-            break;
-    }
+    int fan_id;
 
-    return rc;
+    VALIDATE(id);
+    fan_id = ONLP_OID_ID_GET(id);
+    /* Set the onlp_oid_hdr_t and capabilities */
+    *info = fan_info[fan_id];
+
+    return pltfm_fan_info_get(info, fan_id);
 }
 
 int onlp_fani_status_get(onlp_oid_t id, uint32_t* rv)

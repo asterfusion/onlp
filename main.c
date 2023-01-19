@@ -24,10 +24,10 @@
 #include <sff/sff.h>
 #include <sff/sff_db.h>
 
-/* this's a copy from onlpdump. */
-#define TRY_ONLPDUMP
+/* onlpdum-like application. */
+//#define ONLPDUMP_LIKE_APP
 
-#if defined(TRY_ONLPDUMP)
+#if defined(ONLPDUMP_LIKE_APP)
 
 static void platform_manager_daemon__(const char* pidfile, char** argv);
 
@@ -482,41 +482,39 @@ platform_manager_daemon__(const char* pidfile, char** argv)
 #define TRYNR(_expr) ___TRYNR("  ", _expr, "\r")
 #define TEST(_expr) __TRYNR("", _expr, "\n");
 
+#define ONLP_OID_THERMAL ONLP_OID_TYPE_CREATE(ONLP_OID_TYPE_THERMAL, 1)
+#define ONLP_OID_FAN ONLP_OID_TYPE_CREATE(ONLP_OID_TYPE_FAN, 1)
+#define ONLP_OID_PSU ONLP_OID_TYPE_CREATE(ONLP_OID_TYPE_PSU, 1)
+#define ONLP_OID_LED ONLP_OID_TYPE_CREATE(ONLP_OID_TYPE_LED, 1)
+#define ONLP_OID_RTC ONLP_OID_TYPE_CREATE(ONLP_OID_TYPE_RTC, 1)
 
 int
 iter__(onlp_oid_t oid, void* cookie)
 {
     onlp_oid_hdr_t hdr;
-    cookie=cookie;
+    cookie = cookie;
     onlp_oid_hdr_get(oid, &hdr);
     printf("OID: 0x%x, D='%s'\n", oid, hdr.description);
     return 0;
 }
 
-/* Simple main for onlpdump test case. */
 int
 main(int argc, char* argv[])
 {
-    argc=argc;
-    argv=argv;
-    //    TEST(shlock_test());
+    argc = argc;
+    argv = argv;
 
-    /* Example Platform Dump */
     onlp_init();
 
-    /* */
-    onlp_platform_dump(&aim_pvs_stdout, ONLP_OID_DUMP_RECURSE);
-    onlp_oid_iterate(0, 0, iter__, NULL);
-    onlp_platform_show(&aim_pvs_stdout, ONLP_OID_SHOW_RECURSE|ONLP_OID_SHOW_EXTENDED);
+    onlp_oid_iterate(ONLP_OID_THERMAL, ONLP_OID_TYPE_THERMAL, iter__, NULL);
+    //onlp_oid_iterate(ONLP_OID_FAN, ONLP_OID_TYPE_FAN, iter__, NULL);
+    //onlp_oid_iterate(ONLP_OID_PSU, ONLP_OID_TYPE_PSU, iter__, NULL);
 
-    if(argv[1] && !strcmp("manage", argv[1])) {
-        onlp_sys_platform_manage_start(true);
-        printf("Sleeping...\n");
-        sleep(10);
-        printf("Stopping...\n");
-        onlp_sys_platform_manage_stop(true);
-        printf("Stopped.\n");
-    }
+    //onlp_oid_iterate(ONLP_OID_SYS, 0, iter__, NULL);
+
+    onlp_platform_dump(&aim_pvs_stdout, ONLP_OID_DUMP_RECURSE);
+    //onlp_platform_show(&aim_pvs_stdout, ONLP_OID_SHOW_RECURSE|ONLP_OID_SHOW_EXTENDED);
+
     return 0;
 }
 

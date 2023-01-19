@@ -28,8 +28,12 @@
 
 #include "platform_lib.h"
 
-/** OID Header */
-onlp_oid_hdr_t hdr;
+#define VALIDATE(_id)                           \
+    do {                                        \
+        if(!ONLP_OID_IS_PSU(_id)) {             \
+            return ONLP_STATUS_E_INVALID;       \
+        }                                       \
+    } while(0)
 
 static onlp_psu_info_t pinfo[] =
 {
@@ -70,71 +74,47 @@ onlp_psui_init(void)
     return ONLP_STATUS_OK;
 }
 
-static int 
-psu_status_info_get(int id, onlp_psu_info_t *info)
-{   
-    int pw_exist = 0, pw_good = 0, rc;  
-    
-    if ((id != PSU1_ID) && 
-        (id != PSU2_ID))
-        return ONLP_STATUS_E_INTERNAL;
-    
+int
+onlp_psui_info_get(onlp_oid_t id, onlp_psu_info_t* info)
+{
+    int pid;
+    int pw_exist = 0, pw_good = 0;
+
+    VALIDATE(id);
+
+    pid = ONLP_OID_ID_GET(id);
+    /* Set the onlp_oid_hdr_t */
+    *info = pinfo[pid];
+
      /* Get power present status */
-    if ((rc = pltfm_psu_present_get(&pw_exist, id)) != ONLP_STATUS_OK) {
+    if (pltfm_psu_present_get(&pw_exist, pid) != ONLP_STATUS_OK) {
         return ONLP_STATUS_E_INTERNAL;
     }
 
     if (pw_exist != PSU_STATUS_PRESENT) {
         info->status &= ~ONLP_PSU_STATUS_PRESENT;
         info->status |=  ONLP_PSU_STATUS_FAILED;    
-        return ONLP_STATUS_OK;
-    }    
-    info->status |= ONLP_PSU_STATUS_PRESENT;
-    
-    /* Get power good status */
-    if ((rc = pltfm_psu_pwgood_get(&pw_good, id)) != ONLP_STATUS_OK) {
-        return ONLP_STATUS_E_INTERNAL;
-    }   
-    
-    if (pw_good != PSU_STATUS_POWER_GOOD) {        
-        info->status |= ONLP_PSU_STATUS_UNPLUGGED;
-        return ONLP_STATUS_OK;
     } else {
-        info->status &= ~ONLP_PSU_STATUS_UNPLUGGED;
-    }
+        info->status |= ONLP_PSU_STATUS_PRESENT;
 
-    if ((rc = pltfm_psu_get(info, id)) != ONLP_STATUS_OK) {
-        return ONLP_STATUS_E_INTERNAL;
+        /* Get power good status */
+        if (pltfm_psu_pwgood_get(&pw_good, pid) != ONLP_STATUS_OK) {
+            return ONLP_STATUS_E_INTERNAL;
+        }
+
+        if (pw_good != PSU_STATUS_POWER_GOOD) {
+            info->status |= ONLP_PSU_STATUS_UNPLUGGED;
+        } else {
+            info->status &= ~ONLP_PSU_STATUS_UNPLUGGED;
+        }
+
+        if (pltfm_psu_get(info, pid) != ONLP_STATUS_OK) {
+            return ONLP_STATUS_E_INTERNAL;
+        }
     }
-    
     return ONLP_STATUS_OK;
 }
 
-int
-onlp_psui_info_get(onlp_oid_t id, onlp_psu_info_t* info)
-{        
-    int pid;
-    
-    pid = ONLP_OID_ID_GET(id);
-    memset(info, 0, sizeof(onlp_psu_info_t));
-    
-    /* Set the onlp_oid_hdr_t */
-    *info = pinfo[pid]; 
-
-    switch (pid) {
-        case PSU1_ID:
-        case PSU2_ID:
-            return psu_status_info_get(pid, info);
-            break;
-        default:
-            return ONLP_STATUS_E_UNSUPPORTED;
-            break;
-    }
-
-    return ONLP_STATUS_OK;
-
-
-}
 int onlp_psui_status_get(onlp_oid_t id, uint32_t* rv) {
     id = id;
     rv = rv;

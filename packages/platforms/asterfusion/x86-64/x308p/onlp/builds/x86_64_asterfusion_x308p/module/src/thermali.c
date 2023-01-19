@@ -27,65 +27,72 @@
 #include <onlplib/file.h>
 #include "x86_64_asterfusion_x308p_log.h"
 #include "platform_lib.h"
-      
+
+#define VALIDATE(_id)                           \
+    do {                                        \
+        if(!ONLP_OID_IS_THERMAL(_id)) {             \
+            return ONLP_STATUS_E_INVALID;       \
+        }                                       \
+    } while(0)
+
 static onlp_thermal_info_t thermal_info[] = {
     { }, /* Not used */
 
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_MAIN_BOARD_LEFT), "Far left of mainboard", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_MAIN_BOARD_RIGHT), "Far right of mainboard", 0, { 0, }},
                 ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN1), "Fan 1", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_GHC1_JUNCTION), "GHC-1 Junction", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_GHC1_AMBIENT), "GHC-1 Ambient", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_GHC2_JUNCTION), "GHC-2 Junction", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_GHC2_AMBIENT), "GHC-2 Ambient", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_JUNCTION), "BF Junction <- from BMC", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_AMBIENT), "BF Ambient <- from BMC", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN2), "Fan 2", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_MAIN), "Tofino Main Temp Sensor <- from tofino", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_REMOTE), "Tofino Remote Temp Sensor <- from tofino", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU1), "PSU 1", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU2), "PSU 2", 0, { 0, }},
-                ONLP_THERMAL_STATUS_PRESENT,
-                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+                0x0,
+                ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     }
     #if 0
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN1), "FAN-1 Thermal", 0},
@@ -131,41 +138,14 @@ onlp_thermali_init(void)
 int
 onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 {   
-    int sensor_id, rc;
+    int sensor_id = 0;
+
+    VALIDATE(id);
     sensor_id = ONLP_OID_ID_GET(id);
-    
+    /* Set the onlp_oid_hdr_t and capabilities */
     *info = thermal_info[sensor_id];
-    info->caps |= ONLP_THERMAL_CAPS_GET_TEMPERATURE;
 
-    switch(sensor_id) {
-        case THERMAL_ID_MAIN_BOARD_LEFT:
-        case THERMAL_ID_MAIN_BOARD_RIGHT:
-        case THERMAL_ID_FAN1:
-        case THERMAL_ID_GHC1_JUNCTION:
-        case THERMAL_ID_GHC1_AMBIENT:
-        case THERMAL_ID_GHC2_JUNCTION:
-        case THERMAL_ID_GHC2_AMBIENT:
-        case THERMAL_ID_BF_JUNCTION:
-        case THERMAL_ID_BF_AMBIENT:
-        case THERMAL_ID_FAN2:
-        case THERMAL_ID_TOFINO_MAIN:
-        case THERMAL_ID_TOFINO_REMOTE:
-        case THERMAL_ID_PSU1:
-        case THERMAL_ID_PSU2:
-#if 0
-        case THERMAL_ID_FAN1:
-        case THERMAL_ID_FAN2:
-        case THERMAL_ID_FAN3:
-        case THERMAL_ID_FAN4:
-#endif
-            rc = pltfm_thermal_get(info, sensor_id);
-            break;
-        default:
-            return ONLP_STATUS_E_INTERNAL;
-            break;
-    }
-
-    return rc;
+    return pltfm_thermal_get(info, sensor_id);
 }
 int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
 {

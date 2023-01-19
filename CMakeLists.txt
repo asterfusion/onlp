@@ -5,9 +5,17 @@
 cmake_minimum_required(VERSION 3.5)
 
 #set(platform "x312p")
+#set(platform "x312p_48y_t")
+#set(platform "cx312p_48y_t")
 #set(platform "x532p")
+#set(platform "x532p_t")
+#set(platform "cx532p_t")
 #set(platform "x564p")
+#set(platform "x564p_t")
+#set(platform "cx564p_t")
 set(platform "x308p")
+#set(platform "x308p_48y_t")
+#set(platform "cx308p_48y_t")
 
 set(vbase "base")
 set(CMAKE_BUILD_TYPE "Debug")
