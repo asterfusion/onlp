@@ -498,6 +498,22 @@ iter__(onlp_oid_t oid, void* cookie)
     return 0;
 }
 
+void
+onlp_retrieve()
+{
+    aim_pvs_t* pvs = &aim_pvs_stdout;
+
+    for(;;) {
+        /* Dump all OIDS*/
+        onlp_thermal_dump(ONLP_OID_THERMAL, pvs, ONLP_OID_DUMP_RECURSE);
+        onlp_fan_dump(ONLP_OID_FAN, pvs, ONLP_OID_DUMP_RECURSE);
+        onlp_psu_dump(ONLP_OID_PSU, pvs, ONLP_OID_DUMP_RECURSE);
+        /* Dump all SFPs */
+        onlp_sfp_dump(pvs);
+        sleep(5);
+    }
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -515,6 +531,7 @@ main(int argc, char* argv[])
     onlp_platform_dump(&aim_pvs_stdout, ONLP_OID_DUMP_RECURSE);
     //onlp_platform_show(&aim_pvs_stdout, ONLP_OID_SHOW_RECURSE|ONLP_OID_SHOW_EXTENDED);
 
+    onlp_retrieve();
     return 0;
 }
 

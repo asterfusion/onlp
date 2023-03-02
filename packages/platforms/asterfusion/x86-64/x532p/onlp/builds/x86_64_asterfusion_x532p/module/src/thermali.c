@@ -27,7 +27,14 @@
 #include <onlplib/file.h>
 #include "x86_64_asterfusion_x532p_log.h"
 #include "platform_lib.h"
-      
+
+#define VALIDATE(_id)                           \
+    do {                                        \
+        if(!ONLP_OID_IS_THERMAL(_id)) {        \
+            return ONLP_STATUS_E_INVALID;       \
+        }                                       \
+    } while(0)
+
 static onlp_thermal_info_t thermal_info[] = {
     { }, /* Not used */
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Far left of mainboard", 0},
@@ -106,13 +113,15 @@ onlp_thermali_init(void)
 int
 onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 {   
-    int sensor_id, rc;
-    sensor_id = ONLP_OID_ID_GET(id);
-    
-    *info = thermal_info[sensor_id];
+    int thermalid, rc;
+    thermalid = ONLP_OID_ID_GET(id);
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    *info = thermal_info[thermalid];
     info->caps |= ONLP_THERMAL_CAPS_GET_TEMPERATURE;
 
-    switch(sensor_id) {
+    switch(thermalid) {
         case THERMAL_ID_LEFT_MAIN_BOARD:
         case THERMAL_ID_RIGHT_MAIN_BOARD:
         case THERMAL_ID_BF_AMBIENT:
@@ -127,7 +136,7 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
         case THERMAL_ID_FAN3:
         case THERMAL_ID_FAN4:
 #endif
-            rc = pltfm_thermal_get(info, sensor_id);
+            rc = pltfm_thermal_get(info, thermalid);
             break;
         default:
             return ONLP_STATUS_E_INTERNAL;
@@ -138,11 +147,36 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 }
 int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
 {
+    int ret = ONLP_STATUS_OK;
+    onlp_thermal_info_t* info;
+    int thermalid;
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    if(thermalid >= THERMAL_NUM) {
+        return ONLP_STATUS_E_INVALID;
+    }
+
+    info = &thermal_info[thermalid];
+
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 int onlp_thermali_hdr_get(onlp_oid_t id, onlp_oid_hdr_t* rv)
 {
-    return ONLP_STATUS_E_UNSUPPORTED;
+    onlp_thermal_info_t* info;
+    int thermalid;
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    if(thermalid >= THERMAL_NUM) {
+        return ONLP_STATUS_E_INVALID;
+    }
+
+    info = &thermal_info[thermalid];
+
+    *rv = info->hdr;
+
+    return ONLP_STATUS_OK;
 }
 
 int onlp_thermali_ioctl(int id, va_list vargs)

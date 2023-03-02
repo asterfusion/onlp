@@ -43,10 +43,10 @@
 
 #define QSFP_NUM              8
 #define SFP_NUM               48
-#define THERMAL_NUM           14
+#define THERMAL_NUM           10
 #define LED_NUM               4
-#define FAN_NUM               14
-
+#define FAN_NUM               12
+#define PSU_NUM               2
 
 #define THERMAL_SHUTDOWN_DEFAULT        105000
 

@@ -72,29 +72,34 @@ int onlp_sysi_onie_data_phys_addr_get(void** physaddr)
 int
 onlp_sysi_oids_get(onlp_oid_t* table, int max)
 {
+    int i;
     onlp_oid_t* e = table;
     memset(table, 0, max*sizeof(onlp_oid_t));
-    int i;
 
-     /* 2 PSUs */
-    *e++ = ONLP_PSU_ID_CREATE(1);
-    *e++ = ONLP_PSU_ID_CREATE(2);
-
-    /* 4 LEDs Item */
-    for (i = 1; i <= LED_NUM; i++) {
-        *e++ = ONLP_LED_ID_CREATE(i);
-    }
-
-    /* 10 THERMALs Item */
+    /* THERMAL_NUM THERMALs Item */
     for (i = 1; i <= THERMAL_NUM; i++) {
         *e++ = ONLP_THERMAL_ID_CREATE(i);
     }
 
-    /* 10 Fans Item */
+    /* FAN_NUM Fans Item */
     for (i = 1; i <= FAN_NUM; i++) {
         *e++ = ONLP_FAN_ID_CREATE(i);
     }
+
+    /* PSU_NUM psus on the chassis */
+    for (i = 1; i <= PSU_NUM; i++) {
+        *e++ = ONLP_PSU_ID_CREATE(i);
+    }
+
+#if 0
+    /* LED_NUM LEDs Item */
+    for (i = 1; i <= LED_NUM; i++) {
+        *e++ = ONLP_LED_ID_CREATE(i);
+    }
     
+    /* Module */
+    /* RTC */
+#endif
     return ONLP_STATUS_OK;
 }
 

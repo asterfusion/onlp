@@ -46,7 +46,7 @@
 #define THERMAL_NUM           8
 #define LED_NUM               4
 #define FAN_NUM               10
-
+#define PSU_NUM               2
 
 #define THERMAL_SHUTDOWN_DEFAULT        105000
 
