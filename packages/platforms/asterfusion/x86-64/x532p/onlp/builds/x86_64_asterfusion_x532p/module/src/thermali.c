@@ -147,7 +147,6 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 }
 int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
 {
-    int ret = ONLP_STATUS_OK;
     onlp_thermal_info_t* info;
     int thermalid;
 
@@ -158,8 +157,9 @@ int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
     }
 
     info = &thermal_info[thermalid];
+    *rv = info->status;
 
-    return ONLP_STATUS_E_UNSUPPORTED;
+    return ONLP_STATUS_OK;
 }
 int onlp_thermali_hdr_get(onlp_oid_t id, onlp_oid_hdr_t* rv)
 {
@@ -173,7 +173,6 @@ int onlp_thermali_hdr_get(onlp_oid_t id, onlp_oid_hdr_t* rv)
     }
 
     info = &thermal_info[thermalid];
-
     *rv = info->hdr;
 
     return ONLP_STATUS_OK;

@@ -4,18 +4,18 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-#set(platform "x312p")
-#set(platform "x312p_48y_t")
-#set(platform "cx312p_48y_t")
-#set(platform "x532p")
-#set(platform "x532p_t")
-#set(platform "cx532p_t")
-#set(platform "x564p")
-#set(platform "x564p_t")
-#set(platform "cx564p_t")
-set(platform "x308p")
-#set(platform "x308p_48y_t")
-#set(platform "cx308p_48y_t")
+# cmake ../ -DPLAT=x532p and "-DPLAT=?" can be anyone of listed below.
+# x532p/x532p_t/cx532p_t
+# x564p/x564p_t/cx564p_t
+# x732q/x732q_t/cx732q_t
+# x308p/x308p_t/x308p_48y_t/cx308p_48y_t
+# x312p/x312p_48y_t/cx312p_48y_t
+
+set(platform "x532p")
+if(DEFINED PLAT) # Default PLATFORM
+  set(platform "${PLAT}")
+endif()
+message(STATUS "Giving -DPLAT=${platform}")
 
 set(vbase "base")
 set(CMAKE_BUILD_TYPE "Debug")
@@ -69,12 +69,12 @@ add_executable(onlp
 
 target_link_libraries(onlp -lpthread -lm)
 
-target_include_directories(onlp PRIVATE 
+target_include_directories(onlp PRIVATE
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/packages/${vbase}/any/onlp/src/onlp/module/inc
 	${PROJECT_SOURCE_DIR}/packages/${vbase}/any/onlp/src/onlplib/module/inc
 	${PROJECT_SOURCE_DIR}/packages/platforms/asterfusion/x86-64/${platform}/onlp/builds/x86_64_asterfusion_${platform}/module/inc
-	
+
 	${PROJECT_SOURCE_DIR}/sm/infra/modules/AIM/module/inc
 	${PROJECT_SOURCE_DIR}/sm/bigcode/modules/IOF/module/inc
 	${PROJECT_SOURCE_DIR}/sm/bigcode/modules/cjson/module/inc

@@ -77,7 +77,7 @@ int pltfm_sfp_present_get(int port, long long int *mask)
     return error;
 }
 
-int 
+int
 pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
 {
     int error = ONLP_STATUS_E_INTERNAL;
@@ -115,7 +115,7 @@ finish:
 }
 
 
-int 
+int
 pltfm_psu_get(onlp_psu_info_t* info, int id)
 {
     int error = 0;
@@ -375,7 +375,7 @@ pltfm_psu_present_get(int *exist, int id)
     FILE *fp;
     char f[32] = {0};
     int present = 0;
-    
+
     sprintf(f, "/var/asterfusion/psu_%d_presence", id);
     fp = fopen(f, "r");
     if (!fp) {
@@ -425,7 +425,7 @@ pltfm_psu_pwgood_get(int *pw_good, int id)
             }
             error = ONLP_STATUS_OK;
        }
-        fclose(fp);
+       fclose(fp);
     }
 finish:
     return error;
@@ -440,7 +440,7 @@ pltfm_onie_info_get(onlp_onie_info_t* onie)
     char f[128] = {0};
     char f1[64] = {0};
     char f2[64] = {0};
-    
+
     sprintf(f, "/var/asterfusion/eeprom");
     fp = fopen(f, "r");
     if (!fp) {
@@ -535,6 +535,3 @@ pltfm_onie_info_get(onlp_onie_info_t* onie)
 finish:
     return error;
 }
-
-
-

@@ -43,7 +43,7 @@
 
 #define QSFP_NUM              8
 #define SFP_NUM               48
-#define THERMAL_NUM           10
+#define THERMAL_NUM           12
 #define LED_NUM               4
 #define FAN_NUM               12
 #define PSU_NUM               2

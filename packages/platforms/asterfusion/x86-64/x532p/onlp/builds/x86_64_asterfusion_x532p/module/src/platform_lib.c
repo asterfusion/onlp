@@ -75,14 +75,14 @@ int pltfm_sfp_present_get(int port, int *mask)
     return error;
 }
 
-int 
+int
 pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
 {
     int error = ONLP_STATUS_E_INTERNAL;
     FILE *fp;
     char f[32] = {0};
     char data[32] = {0};
-    
+
     sprintf(f, "/var/asterfusion/thermal_%d_temp", thermal_id);
     fp = fopen(f, "r");
     if (!fp) {
@@ -93,13 +93,14 @@ pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
             info->mcelsius = atoi(data);
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 finish:
     return error;
 }
 
 
-int 
+int
 pltfm_psu_get(onlp_psu_info_t* info, int id)
 {
     int error = 0;
@@ -121,6 +122,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_iout", id);
@@ -133,6 +135,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vin", id);
@@ -145,6 +148,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vout", id);
@@ -157,6 +161,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pin", id);
@@ -168,6 +173,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpin = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pout", id);
@@ -179,13 +185,14 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpout = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
 finish:
     return error;
 }
 
-int 
+int
 pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
 {
     int error = ONLP_STATUS_E_INTERNAL;
@@ -234,7 +241,7 @@ pltfm_psu_present_get(int *exist, int id)
     FILE *fp;
     char f[32] = {0};
     int present = 0;
-    
+
     sprintf(f, "/var/asterfusion/psu_%d_presence", id);
     fp = fopen(f, "r");
     if (!fp) {
@@ -252,8 +259,8 @@ pltfm_psu_present_get(int *exist, int id)
             }
             error = ONLP_STATUS_OK;
        }
+       fclose(fp);
     }
-    fclose(fp);
 finish:
     return error;
 }
@@ -284,7 +291,7 @@ pltfm_psu_pwgood_get(int *pw_good, int id)
             }
             error = ONLP_STATUS_OK;
        }
-        fclose(fp);
+       fclose(fp);
     }
 finish:
     return error;
@@ -299,7 +306,7 @@ pltfm_onie_info_get(onlp_onie_info_t* onie)
     char f[128] = {0};
     char f1[64] = {0};
     char f2[64] = {0};
-    
+
     sprintf(f, "/var/asterfusion/eeprom");
     fp = fopen(f, "r");
     if (!fp) {
@@ -394,6 +401,3 @@ pltfm_onie_info_get(onlp_onie_info_t* onie)
 finish:
     return error;
 }
-
-
-
